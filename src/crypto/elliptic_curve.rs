@@ -3,10 +3,10 @@ use num::bigint::BigInt;
 
 #[derive(Clone)]
 pub struct Point {
-    x: FieldElement,
-    y: FieldElement,
-    a: FieldElement,
-    b: FieldElement,
+    pub x: FieldElement,
+    pub y: FieldElement,
+    pub a: FieldElement,
+    pub b: FieldElement,
 }
 
 impl std::fmt::Display for Point {
