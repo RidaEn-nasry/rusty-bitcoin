@@ -6,7 +6,6 @@ pub struct FieldElement {
     pub prime: BigInt,
 }
 
-
 impl FieldElement {
     pub fn new(num: BigInt, prime: BigInt) -> FieldElement {
         if num >= prime || prime <= BigInt::from(0) {
@@ -53,25 +52,32 @@ impl FieldElement {
             prime: (self.prime()),
         }
     }
-    pub fn pow(&self, exponent: BigInt) -> FieldElement {
-        let mut result = FieldElement::new(BigInt::from(1), self.prime());
-        let mut base = self.clone();
-        let mut exp = exponent;
-        //
-        for _ in 0..exp.bits() {
-            result = result.multiply(&base)
+    pub fn pow(&self, exponent: &BigInt) -> FieldElement {
+        let mut n = exponent.clone();
+        while n < BigInt::from(0) {
+            n = n + &self.prime - 1;
         }
-        result
+        let num = self.num.modpow(&n, &self.prime);
+        FieldElement {
+            num,
+            prime: self.prime.clone(),
+        }
     }
+
     pub fn divide(&self, other: &FieldElement) -> FieldElement {
-        if self.prime() != other.prime() {
-            panic!("Cannot divide two numbers in different Fields");
+        // if elements are not in the same field, panic
+        if self.prime != other.prime {
+            panic!("Cannot divide two numbers in different fields");
         }
-        // use Fermat's little theorem
-        // self.num**(p-1) % p == 1
-        let mut other_inv = other.pow(self.prime() - BigInt::from(2));
-        self.multiply(&other_inv)
+        // if other is zero, panic
+        if other.num == BigInt::from(0) {
+            panic!("Cannot divide by zero");
+        }
+        // using the fact that a/b = a * b^-1 or a * b^(p-2) (fermat's little theorem)
+        let num = (&self.num * &other.num.modpow(&(&self.prime - 2), &self.prime)) % &self.prime;
+        FieldElement {
+            num,
+            prime: self.prime.clone(),
+        }
     }
 }
-
-
