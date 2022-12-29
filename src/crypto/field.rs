@@ -8,9 +8,10 @@ pub struct FieldElement {
 
 impl FieldElement {
     pub fn new(num: BigInt, prime: BigInt) -> FieldElement {
-        if num >= prime || prime <= BigInt::from(0) {
-            panic!("Num {} not in field range 0 to {}", num, prime - 1);
-        }
+        // if num >= prime || prime <= BigInt::from(0) {
+        //     panic!("Num {} not in field range 0 to {}", num, prime - 1);
+        // }
+        let num = num % &prime;
         FieldElement { num, prime }
     }
     pub fn num(&self) -> BigInt {

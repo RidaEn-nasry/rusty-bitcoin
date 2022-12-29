@@ -20,6 +20,7 @@ pub struct Secp256k1Param {
     pub prime: BigInt,
     pub a: FieldElement,
     pub b: FieldElement,
+    pub n: BigInt,
     pub generator: EllipticPoint,
 }
 
@@ -38,12 +39,17 @@ impl Secp256k1Param {
             a.clone(),
             b.clone(),
         );
-
+        let n = BigInt::parse_bytes(
+            b"115792089237316195423570985008687907852837564279074904382605163141518161494337",
+            10,
+        )
+        .unwrap();
         Secp256k1Param {
             prime,
             a,
             b,
             generator,
+            n,
         }
     }
 
@@ -60,6 +66,9 @@ impl Secp256k1Param {
 
     pub fn generator(&self) -> EllipticPoint {
         self.generator.clone()
+    }
+    pub fn n(&self) -> BigInt {
+        self.n.clone()
     }
 }
 
@@ -93,23 +102,5 @@ impl Secp256k1 {
         }
     }
 
-    // verify , z, signature
-    pub fn verify(&self, z: FieldElement, signature: Signature) -> bool {
-        // s^(n-2) mod n
-        // get the inverse of s
-        let s_inv = signature.s.pow(&(self.prime.clone() - BigInt::from(2)));
-        // u = z * s_inv mod n
-        let u = z.multiply(&s_inv);
-        // v = r * s_inv mod n
-        let v = signature.r.multiply(&s_inv);
-        // u * G + v * P
-        let total = self.generator.multiply(&u).add(
-            &Secp256k1::new(signature.r.clone(), signature.s)
-                .point
-                .multiply(&v),
-        );
-        return total.x.eq(&signature.r);
-    }
+    
 }
-
-

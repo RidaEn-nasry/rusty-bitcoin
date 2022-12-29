@@ -1,7 +1,12 @@
-use std::ops::Shr;
+use std::ops::{Shr, Sub};
 
 use crate::crypto::field::FieldElement;
-use num::bigint::BigInt;
+use num::bigint::{BigInt, Sign};
+// use num_bigint::BigUint;
+// use num::bigint::g
+// use num_bigint::{BigInt, BigUint, Sign};
+
+// use num::traits::Pow;
 
 #[derive(Clone)]
 pub struct EllipticPoint {
@@ -56,6 +61,14 @@ impl EllipticPoint {
         }
         p
     }
+    /// getters
+    pub fn x(&self) -> FieldElement {
+        self.x.clone()
+    }
+    pub fn y(&self) -> FieldElement {
+        self.y.clone()
+    }
+
     // checking equality of two EllipticPoints
     pub fn eq(&self, other: &EllipticPoint) -> bool {
         self.x.eq(&other.x) && self.y.eq(&other.y) && self.a.eq(&other.a) && self.b.eq(&other.b)
@@ -127,19 +140,30 @@ impl EllipticPoint {
 
     // scalar multiplication
     pub fn multiply(&self, num: &FieldElement) -> Self {
-        // better calculate the thing using binary expantion, a reduction from O(n) complexity to O(log n)
+        // calculating the scalar multiplication using regular looping
+        // let mut result = Self::infinity(self.a.clone(), self.b.clone());
+        // // let mut current = self.clone();
+        // let mut exp = num.clone();
+        // while exp.num() > BigInt::from(0) {
+        //     result = result.add(&self);
+        //     exp.num = exp.num - &BigInt::from(1);
+        // }
+        // result
+
+        // // better calculate the thing using binary expantion, a reduction from O(n) complexity to O(log n)
         let mut result = Self::infinity(self.a.clone(), self.b.clone());
         let mut current = self.clone();
         let mut exp = num.clone();
-        while exp.num() > BigInt::from(0) {
+        while exp.num() != BigInt::from(0) {
+            // using double-add algorithm
             // if most significant bit (the leftmost bit) is 1 , then add the current EllipticPoint to the result
-            if exp.num().bits() & BigInt::from(1).bits() == BigInt::from(1).bits() {
+            if exp.num.bit(0) == true {
                 result = result.add(&current);
             }
             // double the currentEllipticPoint
             current = current.add(&current);
             // shift exp to the right by 1 bit
-            exp.num = exp.num.shr(1).into();
+            exp.num = exp.num.shr(1);
         }
         result
     }

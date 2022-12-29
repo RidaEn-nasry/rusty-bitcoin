@@ -13,7 +13,6 @@ pub struct Signature {
     pub s: FieldElement,
 }
 
-
 impl Signature {
     pub fn new(r: FieldElement, s: FieldElement) -> Signature {
         Signature { r, s }
