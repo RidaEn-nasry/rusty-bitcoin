@@ -79,34 +79,44 @@ fn main() {
 
     let params = Secp256k1Param::new();
     let keys = ECDSA::new("my secret key".to_string());
-    println!("private key: {}", keys.prk());
-    println!("public key: {}", keys.pk());
+    // println!("private key: {}", keys.prk());
+    // println!("public key: {}", keys.pk());
     //
     let msg = "hello world";
     let z = hash(msg, None);
-    // get random k
-    let k = get_rndm(&params.n());
-    // R = k * G
-    let R = params.generator() * &k;
-    let r = R.x.num.clone();
-    let k_inv = k.modpow(&(params.n() - BigInt::from(2)), &params.n());
-    let s = (k_inv * (z.num.clone() + r.clone() * keys.prk())) % &params.n();
 
-    let public = params.generator() * &keys.prk();
-    // println!("public key: {}", public.x.num);
-    // // verify
-    let s_inv = s.modpow(&(params.n() - BigInt::from(2)), &params.n());
-    let u = z.num.clone() * s_inv.clone() % &params.n();
-    let v = r.clone() * s_inv.clone() % &params.n();
-    let R2 = &(params.generator() * &u) + &(public * &v);
-    println!("R2: {}", R2.x.num);
-    println!("R: {}", r);
-    if R2.x.num == r {
+    let signature = keys.sign(z.clone());
+    if keys.verify(z, signature) == true {
         println!("signature is valid");
     } else {
         println!("signature is invalid");
     }
-    
+
+    //***** */
+    // get random k
+    // let k = get_rndm(&params.n());
+    // // R = k * G
+    // let R = params.generator() * &k;
+    // let r = R.x.num.clone();
+    // let k_inv = k.modpow(&(params.n() - BigInt::from(2)), &params.n());
+    // let s = (k_inv * (z.num.clone() + r.clone() * keys.prk())) % &params.n();
+
+    // let public = params.generator() * &keys.prk();
+    // // println!("public key: {}", public.x.num);
+    // // // verify
+    // let s_inv = s.modpow(&(params.n() - BigInt::from(2)), &params.n());
+    // let u = z.num.clone() * s_inv.clone() % &params.n();
+    // let v = r.clone() * s_inv.clone() % &params.n();
+    // let R2 = &(params.generator() * &u) + &(public * &v);
+    // println!("R2: {}", R2.x.num);
+    // println!("R: {}", r);
+    // if R2.x.num == r {
+    //     println!("signature is valid");
+    // } else {
+    //     println!("signature is invalid");
+    // }
+    /******** */
+
     // let u = z 
     // let h = z.num.clone();
     // let s1 = s.modpow(&(params.n() - BigInt::from(2)), &params.n());
@@ -127,12 +137,7 @@ fn main() {
 
 
 
-    // let signature = keys.sign(z.clone());
-    // if keys.verify(z, signature) == true {
-        // println!("signature is valid");
-    // } else {
-        // println!("signature is invalid");
-    // }
+    
     // println!("r {}", signature.r.x.num());
     // println!("s {}", signature.s.num());
 
