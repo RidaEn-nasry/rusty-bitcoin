@@ -79,8 +79,6 @@
 //     }
 // }
 
-
-
 // a version of mul for i32 and FieldElement
 // impl Mul<i32> for FieldElement {
 //     type Output = FieldElement;
@@ -174,7 +172,6 @@ impl<'a> Mul<&'a FieldElement> for FieldElement {
     }
 }
 
-
 //a version of mul for FieldElement and BigInt
 impl<'a> Mul<&'a BigInt> for FieldElement {
     type Output = FieldElement;
@@ -189,8 +186,7 @@ impl<'a> Mul<&'a BigInt> for FieldElement {
             prime: (self.prime),
         }
     }
-} 
-
+}
 
 // a version of mul for i32 and FieldElement
 impl<'a> Mul<&'a i32> for FieldElement {
@@ -207,7 +203,6 @@ impl<'a> Mul<&'a i32> for FieldElement {
         }
     }
 }
-
 
 impl FieldElement {
     pub fn new(num: BigInt, prime: BigInt) -> FieldElement {
@@ -245,5 +240,18 @@ impl FieldElement {
             num,
             prime: self.prime.clone(),
         }
+    }
+
+    // sqrt
+
+    pub fn sqrt(&self) -> Option<FieldElement> {
+        if &self.prime % 4 != BigInt::from(3) {
+            panic!("Cannot find square root of {} in this field", self.num);
+        }
+        let num = self.pow(&((&self.prime + 1) / 4));
+        Some(FieldElement {
+            num: num.num,
+            prime: self.prime.clone(),
+        })
     }
 }

@@ -1,14 +1,10 @@
-use std::fs::File;
-use std::ops::{Mul, Sub};
-
 use super::utils::get_rndm;
-use super::{hash_bigint, EllipticPoint};
+use super::EllipticPoint;
 use crate::crypto::field::FieldElement;
 use crate::crypto::hash::hash;
 use crate::crypto::signature::Signature;
 use crate::crypto::Secp256k1Param;
 use num::bigint::BigInt;
-use sha2::digest::typenum::private::BitDiff;
 
 pub struct ECDSA {
     secret_str: String,
@@ -20,18 +16,67 @@ impl ECDSA {
     pub fn new(secret: String) -> ECDSA {
         let params = Secp256k1Param::new();
         let prv = hash(&secret, None);
-        let pk = params.generator() * &prv;  
-
-        // let pk = params.generator().multiply(&FieldElement {
-        //     num: secret.num(),
-        //     prime: params.prime(),
-        // });
+        let pk = params.generator() * &prv;
         ECDSA {
             secret_str: secret,
             puk: pk,
             prk: prv.num,
         }
     }
+    // serialize the public key using uncompressed sec format using hex
+    pub fn sec(&self) -> String {
+        let x = self.puk.x.num.to_str_radix(16);
+        let y = self.puk.y.num.to_str_radix(16);
+
+        let mut x = x.clone();
+        let mut y = y.clone();
+        if x.len() < 64 {
+            let mut zeros = String::new();
+            for _ in 0..(64 - x.len()) {
+                zeros.push('0');
+            }
+            x = zeros + &x;
+        }
+
+        if y.len() < 64 {
+            let mut zeros = String::new();
+            for _ in 0..(64 - y.len()) {
+                zeros.push('0');
+            }
+            y = zeros + &y;
+        }
+
+        let mut sec = String::new();
+        sec.push_str("04");
+        sec.push_str(&x);
+        sec.push_str(&y);
+        sec
+    }
+
+    // serialize the public key using compressed sec format
+    pub fn sec_comp(&self) -> String {
+        let x = self.puk.x.num.to_str_radix(16);
+        let prefix = if &self.puk.y.num % &BigInt::from(2) == BigInt::from(0) {
+            "02"
+        } else {
+            "03"
+        };
+
+        if x.len() < 64 {
+            let mut zeros = String::new();
+            for _ in 0..(64 - x.len()) {
+                zeros.push('0');
+            }
+            format!("{}{}", prefix, zeros + &x)
+        } else {
+            format!("{}{}", prefix, x)
+        }
+    }
+
+    pub fn secret(&self) -> String {
+        self.secret_str.clone()
+    }
+
     pub fn pk(&self) -> EllipticPoint {
         self.puk.clone()
     }
@@ -40,36 +85,39 @@ impl ECDSA {
         self.prk.clone()
     }
 
+    // pub fn parse_sec(sec: &str)
     pub fn sign(&self, z: FieldElement) -> Signature {
         // this struct contains all secp256k1 parameters
         let params = Secp256k1Param::new();
         // get a random 1 < k < n - 1
         let k = BigInt::from(get_rndm(&params.n()));
         // k % prime
-        // let k = FieldElement {
-        //     num: k,
-        //     prime: params.prime(),
-        // };
+        let k = FieldElement {
+            num: k,
+            prime: params.prime(),
+        };
 
         // R = k * G
         let R = params.generator() * &k;
         // get r.x
         let r = R.x.num.clone();
         // k^-1 = k^(n-2) mod n
-        let k_inv = k.modpow(&(params.n() - BigInt::from(2)), &params.n());
+        let k_inv = k.num.modpow(&(params.n() - BigInt::from(2)), &params.n());
         // s = k^-1 * (z + r * d) mod n
-        let s = (k_inv * (z.num.clone() + r.clone() * self.prk())) % &params.n();
-
+        let mut s = (k_inv * (z.num.clone() + r.clone() * self.prk())) % &params.n();
+        // it's possible to modify s without invalidating the signature
+        if s > params.n() / BigInt::from(2) {
+            s = params.n() - s;
+        }
         Signature { r: R, s }
     }
     pub fn verify(&self, z: FieldElement, signature: Signature) -> bool {
         let params = Secp256k1Param::new();
         // re-calculate the hash
-        // let h = hash(&z.num.to_string(), None).num;
         // s^-1 = s^(n-2) mod n
-        // s^-1 = s^(n-2) mod n
-        let s_inv = signature.s.modpow(&(params.n() - BigInt::from(2)), &params.n());
-
+        let s_inv = signature
+            .s
+            .modpow(&(params.n() - BigInt::from(2)), &params.n());
         // u = z * s^-1 mod n
         let u = z.num.clone() * s_inv.clone() % &params.n();
         let v = signature.r.x.num.clone() * &s_inv % &params.n();
@@ -78,13 +126,5 @@ impl ECDSA {
         println!("r2.x.num: {:?}", r2.x.num);
         println!("signature.r.x.num: {:?}", signature.r.x.num);
         &r2.x.num == &signature.r.x.num
-
-        // let s1 = signature
-        //     .s
-        //     .modpow(&(params.n() - BigInt::from(2)), &params.n());
-        // // r2 = (h * s1) * G + (r * s1) * pubkey
-        // let r2 = &(params.generator() * &(h * &s1)) + &(signature.r.clone() * &(self.pk() * &s1));
-        // // check if r1 == r2
-        // &r2 == &signature.r
     }
 }

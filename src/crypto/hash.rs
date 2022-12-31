@@ -39,13 +39,3 @@ pub fn hash_bigint(msg: BigInt) -> FieldElement {
     let num = BigInt::from_bytes_be(num::bigint::Sign::Plus, &bytes);
     FieldElement::new(num, params.prime())
 }
-
-//
-//     let mut hasher = Sha256::new();
-//     hasher.update(msg);
-//     let result = hasher.finalize();
-//     let mut bytes = [0; 32];
-//     bytes.copy_from_slice(&result[..]);
-//     let num = BigInt::from_bytes_be(num::bigint::Sign::Plus, &bytes);
-//     num
-// }

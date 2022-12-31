@@ -11,8 +11,9 @@ use signature::Signature;
 use crate::crypto::{ecdsa, get_rndm, signature, FieldElement};
 // use crypto::utils::{sign, verify};
 
-use crypto::EllipticPoint;
+use crypto::parse::*;
 
+use crypto::EllipticPoint;
 
 fn main() {
     // generato
@@ -79,6 +80,13 @@ fn main() {
 
     let params = Secp256k1Param::new();
     let keys = ECDSA::new("my secret key".to_string());
+    // println!("public key: {}", keys.sec_comp());
+    println!("*********************************");
+    println!(
+        "calcualting the compressed public key: {}",
+        parse_sec(keys.sec_comp().as_str())
+    );
+    println!("*********************************");
     // println!("private key: {}", keys.prk());
     // println!("public key: {}", keys.pk());
     //
@@ -117,27 +125,22 @@ fn main() {
     // }
     /******** */
 
-    // let u = z 
+    // let u = z
     // let h = z.num.clone();
     // let s1 = s.modpow(&(params.n() - BigInt::from(2)), &params.n());
     // let r2 = &(params.generator() * &(h.clone() * s1.clone())) + &(R * &(s1.clone() * keys.pk()));
-    
+
     // println!("r2 {}", r2.x.num.to_string());
     // println!("r  {}", r.to_string());
-    
+
     // if r2.x.num == r {
     //     println!("signature is valid");
     // } else {
     //     println!("signature is invalid");
     // }
-    
+
     // let h = hash(&z.num.to_string(), None).num;
 
-
-
-
-
-    
     // println!("r {}", signature.r.x.num());
     // println!("s {}", signature.s.num());
 
