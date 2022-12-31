@@ -109,7 +109,7 @@ impl ECDSA {
         if s > params.n() / BigInt::from(2) {
             s = params.n() - s;
         }
-        Signature { r: R, s }
+        Signature { r, s }
     }
     pub fn verify(&self, z: FieldElement, signature: Signature) -> bool {
         let params = Secp256k1Param::new();
@@ -120,11 +120,11 @@ impl ECDSA {
             .modpow(&(params.n() - BigInt::from(2)), &params.n());
         // u = z * s^-1 mod n
         let u = z.num.clone() * s_inv.clone() % &params.n();
-        let v = signature.r.x.num.clone() * &s_inv % &params.n();
+        let v = signature.r.clone() * &s_inv % &params.n();
         let r2 = &(params.generator() * &u) + &(self.pk() * &v);
 
         println!("r2.x.num: {:?}", r2.x.num);
-        println!("signature.r.x.num: {:?}", signature.r.x.num);
-        &r2.x.num == &signature.r.x.num
+        println!("signature.r.x.num: {:?}", signature.r);
+        &r2.x.num == &signature.r
     }
 }

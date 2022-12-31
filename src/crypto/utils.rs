@@ -22,67 +22,16 @@ pub fn get_rndm(n: &BigInt) -> BigInt {
     // let num: BigIn = rng.gen_range(min, max);t
 }
 
-// pub fn verify(msg_hash: FieldElement, sig: Signature) -> bool {
-//     let params = Secp256k1Param::new();
 
-//     // s^(n-2) mod n
-//     // get the inverse of s
-//     let s_inv = sig.s.num.modpow(
-//         &(msg_hash.prime.clone() - BigInt::from(2)),
-//         &msg_hash.prime.clone(),
-//     );
 
-//     // u = z * s_inv mod n
-//     let u = msg_hash.num.modpow(&s_inv, &msg_hash.prime.clone());
-//     // v = r * s_inv mod n
-//     let v = sig.r.num.modpow(&s_inv, &msg_hash.prime.clone());
+// a function that takes a vector of raw bytes &[u8] 
+//and returns a string of hex characters in big endian
 
-//     // total = u * G + v * P
-//     let total = params
-//         .generator()
-//         .multiply(&FieldElement::new(u, msg_hash.prime.clone()))
-//         .add(
-//             &params
-//                 .generator()
-//                 .multiply(&FieldElement::new(v, msg_hash.prime.clone())),
-//         );
-//     total.x.num == sig.r.num
-// }
-
-// pub fn sign(msg_hash: FieldElement, prv_key: BigInt) -> Signature {
-//     let params = Secp256k1Param::new();
-
-//     let k = FieldElement {
-//         num: BigInt::from(get_rndm()),
-//         prime: params.prime().clone(),
-//     };
-
-//     // r = k * G
-//     let r = params.generator().multiply(&k);
-//     // k_inv = k^-1 = k^(n-2) mod n
-//     let k_inv = k
-//         .num
-//         .modpow(&(params.prime().clone() - BigInt::from(2)), &params.prime());
-
-//     // s = k^-1 * (z + r * d) mod n
-//     let s = (k_inv * (msg_hash.num() + &r.x.num * prv_key.clone())) % &params.prime();
-
-//     let sign = if s > params.n().clone() / BigInt::from(2) {
-//         Signature::new(
-//             r.x.clone(),
-//             FieldElement {
-//                 num: params.n().clone() - s,
-//                 prime: params.prime().clone(),
-//             },
-//         )
-//     } else {
-//         Signature::new(
-//             r.x.clone(),
-//             FieldElement {
-//                 num: s,
-//                 prime: params.prime().clone(),
-//             },
-//         )
-//     };
-//     sign
+// pub fn slice_to_hexb(bytes: &[u8]) -> String {
+//     // convert the slice of raw bytes to a vector of hex characters
+//     let mut hex = String::new();
+//     for byte in bytes {
+//         hex.push_str(&format!("{:02x}", byte));
+//     }
+//     hex
 // }

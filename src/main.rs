@@ -80,13 +80,13 @@ fn main() {
 
     let params = Secp256k1Param::new();
     let keys = ECDSA::new("my secret key".to_string());
-    // println!("public key: {}", keys.sec_comp());
-    println!("*********************************");
-    println!(
-        "calcualting the compressed public key: {}",
-        parse_sec(keys.sec_comp().as_str())
-    );
-    println!("*********************************");
+    // // println!("public key: {}", keys.sec_comp());
+    // println!("*********************************");
+    // println!(
+    //     "calcualting the compressed public key: {}",
+    //     parse_sec(keys.sec_comp().as_str())
+    // );
+    // println!("*********************************");
     // println!("private key: {}", keys.prk());
     // println!("public key: {}", keys.pk());
     //
@@ -94,108 +94,134 @@ fn main() {
     let z = hash(msg, None);
 
     let signature = keys.sign(z.clone());
-    if keys.verify(z, signature) == true {
+
+    println!("r: {}", signature.r);
+    println!("s: {}", signature.s);
+
+    println!("der: {}", signature.der());
+    let seg_der = match parse_der(signature.der().as_str()) {
+        Ok(seg) => {
+            println!("seg der: {}", seg.r);
+            println!("seg der: {}", seg.s);
+            seg
+        }
+        Err(e) => panic!("error: {}", e),
+    };
+
+    if keys.verify(z, seg_der) == true {
         println!("signature is valid");
     } else {
         println!("signature is invalid");
     }
-
-    //***** */
-    // get random k
-    // let k = get_rndm(&params.n());
-    // // R = k * G
-    // let R = params.generator() * &k;
-    // let r = R.x.num.clone();
-    // let k_inv = k.modpow(&(params.n() - BigInt::from(2)), &params.n());
-    // let s = (k_inv * (z.num.clone() + r.clone() * keys.prk())) % &params.n();
-
-    // let public = params.generator() * &keys.prk();
-    // // println!("public key: {}", public.x.num);
-    // // // verify
-    // let s_inv = s.modpow(&(params.n() - BigInt::from(2)), &params.n());
-    // let u = z.num.clone() * s_inv.clone() % &params.n();
-    // let v = r.clone() * s_inv.clone() % &params.n();
-    // let R2 = &(params.generator() * &u) + &(public * &v);
-    // println!("R2: {}", R2.x.num);
-    // println!("R: {}", r);
-    // if R2.x.num == r {
-    //     println!("signature is valid");
-    // } else {
-    //     println!("signature is invalid");
-    // }
-    /******** */
-
-    // let u = z
-    // let h = z.num.clone();
-    // let s1 = s.modpow(&(params.n() - BigInt::from(2)), &params.n());
-    // let r2 = &(params.generator() * &(h.clone() * s1.clone())) + &(R * &(s1.clone() * keys.pk()));
-
-    // println!("r2 {}", r2.x.num.to_string());
-    // println!("r  {}", r.to_string());
-
-    // if r2.x.num == r {
-    //     println!("signature is valid");
-    // } else {
-    //     println!("signature is invalid");
-    // }
-
-    // let h = hash(&z.num.to_string(), None).num;
-
-    // println!("r {}", signature.r.x.num());
-    // println!("s {}", signature.s.num());
-
-    // signature.r.x = FieldElement {
-    //     num: BigInt::parse_bytes(
-    //         b"50239575108428408310413211650003525893286361243737924845510476823361742567724",
-    //         10,
-    //     )
-    //     .unwrap(),
-    //     prime: params.prime()
-    // };
-    // // println!("r {}", signature.r.x.num().to_str_radix(16));
-    // signature.s = FieldElement {
-    //     num: BigInt::parse_bytes(
-    //         b"24148350574868926181878357970953993772966781636682646823600901823505844929932",
-    //         10,
-    //     )
-    //     .unwrap(),
-    //     prime: params.prime()
-    // };
-    // println!("s {}", signature.s.num().to_str_radix(16));
-    // let signature =  Signature::new(
-    //     EllipticPoint {
-    //         x: FieldElement {
-    //             num: BigInt::from(0x1c1b9b1b),
-    //             prime: params.prime().clone(),
-    //         },
-    //         y: FieldElement {
-    //             num: BigInt::from(0x1c1b9b1b),
-    //             prime: params.prime().clone(),
-    //         },
-    //     },
-    //     FieldElement {
-    //         num: BigInt::from(0x1c1b9b1b),
-    //         prime: params.prime().clone(),
-    //     },
-    // );
-    // )
-    // println!("s {}, r {}", signature.s.num(), signature.r.num());
-    //
-    // // output signature to signature.sig file signature.r.x
-    // // let mut file = File::create("signature.sig").unwrap();
-    // // file.write_all(signature.r.num.to_str_radix(16).as_bytes())
-    // //     .unwrap();
-    //
-    // // file.write_all(signature.s.num.to_str_radix(16).as_bytes())
-    //
-
-    // let params = Secp256k1Param::new();
-    // let mut private = BigInt::from(1000);
-    // private = private % params.n();
-    // let public = params.generator().multiply(&FieldElement {
-    //     num: private.clone(),
-    //     prime: params.prime().clone(),
-    // });
-    // println!("private key: {}", private);
-    // println!("public key: {}", public);
 }
+
+// println!("seg der: {}", seg_der.r);
+// println!("seg der: {}", seg_der.s);
+
+// println!("der: {}", signature.der());
+
+// if keys.verify(z, signature) == true {
+//     println!("signature is valid");
+// } else {
+//     println!("signature is invalid");
+// }
+
+//***** */
+// get random k
+// let k = get_rndm(&params.n());
+// // R = k * G
+// let R = params.generator() * &k;
+// let r = R.x.num.clone();
+// let k_inv = k.modpow(&(params.n() - BigInt::from(2)), &params.n());
+// let s = (k_inv * (z.num.clone() + r.clone() * keys.prk())) % &params.n();
+
+// let public = params.generator() * &keys.prk();
+// // println!("public key: {}", public.x.num);
+// // // verify
+// let s_inv = s.modpow(&(params.n() - BigInt::from(2)), &params.n());
+// let u = z.num.clone() * s_inv.clone() % &params.n();
+// let v = r.clone() * s_inv.clone() % &params.n();
+// let R2 = &(params.generator() * &u) + &(public * &v);
+// println!("R2: {}", R2.x.num);
+// println!("R: {}", r);
+// if R2.x.num == r {
+//     println!("signature is valid");
+// } else {
+//     println!("signature is invalid");
+// }
+/******** */
+
+// let u = z
+// let h = z.num.clone();
+// let s1 = s.modpow(&(params.n() - BigInt::from(2)), &params.n());
+// let r2 = &(params.generator() * &(h.clone() * s1.clone())) + &(R * &(s1.clone() * keys.pk()));
+
+// println!("r2 {}", r2.x.num.to_string());
+// println!("r  {}", r.to_string());
+
+// if r2.x.num == r {
+//     println!("signature is valid");
+// } else {
+//     println!("signature is invalid");
+// }
+
+// let h = hash(&z.num.to_string(), None).num;
+
+// println!("r {}", signature.r.x.num());
+// println!("s {}", signature.s.num());
+
+// signature.r.x = FieldElement {
+//     num: BigInt::parse_bytes(
+//         b"50239575108428408310413211650003525893286361243737924845510476823361742567724",
+//         10,
+//     )
+//     .unwrap(),
+//     prime: params.prime()
+// };
+// // println!("r {}", signature.r.x.num().to_str_radix(16));
+// signature.s = FieldElement {
+//     num: BigInt::parse_bytes(
+//         b"24148350574868926181878357970953993772966781636682646823600901823505844929932",
+//         10,
+//     )
+//     .unwrap(),
+//     prime: params.prime()
+// };
+// println!("s {}", signature.s.num().to_str_radix(16));
+// let signature =  Signature::new(
+//     EllipticPoint {
+//         x: FieldElement {
+//             num: BigInt::from(0x1c1b9b1b),
+//             prime: params.prime().clone(),
+//         },
+//         y: FieldElement {
+//             num: BigInt::from(0x1c1b9b1b),
+//             prime: params.prime().clone(),
+//         },
+//     },
+//     FieldElement {
+//         num: BigInt::from(0x1c1b9b1b),
+//         prime: params.prime().clone(),
+//     },
+// );
+// )
+// println!("s {}, r {}", signature.s.num(), signature.r.num());
+//
+// // output signature to signature.sig file signature.r.x
+// // let mut file = File::create("signature.sig").unwrap();
+// // file.write_all(signature.r.num.to_str_radix(16).as_bytes())
+// //     .unwrap();
+//
+// // file.write_all(signature.s.num.to_str_radix(16).as_bytes())
+//
+
+// let params = Secp256k1Param::new();
+// let mut private = BigInt::from(1000);
+// private = private % params.n();
+// let public = params.generator().multiply(&FieldElement {
+//     num: private.clone(),
+//     prime: params.prime().clone(),
+// });
+// println!("private key: {}", private);
+// println!("public key: {}", public);
+// }
