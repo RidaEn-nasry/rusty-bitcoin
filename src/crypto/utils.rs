@@ -1,11 +1,16 @@
+use std::ops::Rem;
+
 use super::{FieldElement, Secp256k1Param, Signature};
 use num::bigint::BigInt;
 use num::bigint::Sign;
+use num::ToPrimitive;
+
+static BASE58_ALPHABET: &'static [u8] =
+    b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 use rand::{thread_rng, Rng, RngCore};
 // use num_bigint::bigint::BigInt;
 // use num_bigint::ToBigInt;
-
 
 pub fn get_rndm(n: &BigInt) -> BigInt {
     // generate a random number between 1 and n - 1
@@ -22,16 +27,31 @@ pub fn get_rndm(n: &BigInt) -> BigInt {
     // let num: BigIn = rng.gen_range(min, max);t
 }
 
+// a function that's encode a BigInt int a base58 string
 
+pub fn encode_base58(num: &BigInt) -> String {
+    // count how many leading zeros
+    let mut leading_zeros = 0;
+    for byte in num.to_bytes_be().1.iter() {
+        if *byte == 0 {
+            leading_zeros += 1;
+        } else {
+            break;
+        }
+    }
+    //
+    let mut num = num.clone();
+    let mut result = String::new();
+    while num > BigInt::from(0) {
+        let new_num = &num / &BigInt::from(58);
+        let rem = &num % &BigInt::from(58);
 
-// a function that takes a vector of raw bytes &[u8] 
-//and returns a string of hex characters in big endian
+        num = new_num;
 
-// pub fn slice_to_hexb(bytes: &[u8]) -> String {
-//     // convert the slice of raw bytes to a vector of hex characters
-//     let mut hex = String::new();
-//     for byte in bytes {
-//         hex.push_str(&format!("{:02x}", byte));
-//     }
-//     hex
-// }
+        result.push(BASE58_ALPHABET[rem.to_usize().unwrap()] as char);
+    }
+    for _ in 0..leading_zeros {
+        result.push(BASE58_ALPHABET[0] as char);
+    }
+    result.chars().rev().collect()
+}

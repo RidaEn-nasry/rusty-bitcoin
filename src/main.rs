@@ -6,6 +6,7 @@ use num::BigInt;
 
 use crypto::ecdsa::ECDSA;
 use crypto::hash::hash;
+use num::Num;
 use signature::Signature;
 
 use crate::crypto::{ecdsa, get_rndm, signature, FieldElement};
@@ -14,6 +15,8 @@ use crate::crypto::{ecdsa, get_rndm, signature, FieldElement};
 use crypto::parse::*;
 
 use crypto::EllipticPoint;
+
+use crypto::utils::*;
 
 fn main() {
     // generato
@@ -113,6 +116,8 @@ fn main() {
     } else {
         println!("signature is invalid");
     }
+
+    // converting a string slice to BigInt
 }
 
 // println!("seg der: {}", seg_der.r);
