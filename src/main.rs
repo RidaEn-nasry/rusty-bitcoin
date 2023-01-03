@@ -96,8 +96,8 @@ fn main() {
     let msg = "hello world";
     let z = hash(msg, None);
 
-    let signature = keys.sign(z.clone());
 
+    let signature = keys.sign(z.clone());
     println!("r: {}", signature.r);
     println!("s: {}", signature.s);
 
