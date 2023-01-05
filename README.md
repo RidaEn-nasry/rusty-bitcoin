@@ -1,5 +1,12 @@
-follow along the journey at ridaennasry.me
+What's this: A minimal Re-implementation (every thing from scratch) of almigthy bitcoin in rust. 
 
+
+
+# Todo 
+- [x] public/private keys crypto + ECDSA implementation.
+- [x] serialization/deserilization of signatures and keys.
+- [ ] Transactions
+- ...
 
 
 # Resources
