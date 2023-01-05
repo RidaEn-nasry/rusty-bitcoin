@@ -1,4 +1,5 @@
-What's this: A minimal Re-implementation (every thing from scratch) of almigthy bitcoin in rust. 
+# What's this 
+A minimal Re-implementation (every thing from scratch) of almigthy bitcoin in rust. 
 
 
 
